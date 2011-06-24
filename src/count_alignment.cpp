@@ -14,7 +14,7 @@ using namespace std;
 
 int count_alignment(int argc, char *argv[]) {
 	if(argc <= 2){
-		cout << endl << "Usage: map_analyzer count_alignment <bowtie_align_file>" << endl << endl;
+		std::cerr << endl << "Usage: map_analyzer count_alignment <bowtie_align_file>" << endl << endl;
 		return -1;	
 	}
 	long long file_dimension = 1;
@@ -40,7 +40,7 @@ int count_alignment(int argc, char *argv[]) {
 	outfilestream.open(out_file.c_str());
 	//Processing Lines
 	if(read_file(argv[1], align_file)==0 && outfilestream.is_open()){
-		cout << "Start Reading..." << endl;
+		std::cerr << "Start Reading..." << endl;
 		while (getline(align_file,line)){
 			//PE name from alignment
 			int i = 0;
@@ -64,10 +64,12 @@ int count_alignment(int argc, char *argv[]) {
 				perc++;
 				time_t diff_time = time(NULL) - execution_time;
 				time_t exp_time = diff_time/(double)perc * (100 - perc);
-				cout << "Processed: " << perc << "% - Excution Time: " << diff_time << " second(s) - Expected Time: " << exp_time << " second(s)" << endl;
+				if(perc % 10 == 0){
+					std::cerr << "Processed: " << perc << "% - Excution Time: " << diff_time << " second(s) - Expected Time: " << exp_time << " second(s)" << endl;
+				}
 			}
 		}
-		cout << "Processed: 100%" << endl;
+		std::cerr << "Processed: 100%" << endl;
   		align_file.close();
 		outfilestream.close();
 	}

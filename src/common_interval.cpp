@@ -41,7 +41,7 @@ int common_interval(int argc, char* argv[]){
 
     srand(time(NULL));
     if(argc <= 2){
-        cout << endl << "Usage: map_analyzer common_interval <sorted_parsed_file>" << endl << endl;
+        std::cerr << endl << "Usage: map_analyzer common_interval <sorted_parsed_file>" << endl << endl;
         return -1;	
     }
     long file_dimension = 1;
@@ -56,7 +56,7 @@ int common_interval(int argc, char* argv[]){
     long read_size = 0;
     int perc = 0;
     time_t execution_time = time(NULL);
-    cout << "Start Processing File..." << endl;
+    std::cerr << "Start Processing File..." << endl;
     ifstream align_file;
     string line = "";
     if(read_file(argv[1], align_file)==0){
@@ -65,9 +65,8 @@ int common_interval(int argc, char* argv[]){
         2) Smistare in base al cromosoma
         3) Comporre gli intervalli
         */
-        vector <interval*> regions[24];
-        while (getline(align_file,line)){
-            
+        vector <interval*> regions[25];
+        while(getline(align_file,line)){
             char ch = '\0';
             string int_1 = "";
             string int_2 = "";
@@ -78,16 +77,16 @@ int common_interval(int argc, char* argv[]){
             while(end_len < line.length()){
                 ch = line.at(end_len);
                 end_len++;
-                if(tab == 0){
+                if(tab == 0 && ch != '\t'){
                     num_align += ch;
                 }
-                if(tab == 2){
+                if(tab == 2 && ch != '\t'){
                     chrom += ch;
                 }
-                if(tab == 3){
+                if(tab == 3 && ch != '\t'){
                     int_1 += ch;
                 }
-                if(tab == 4){
+                if(tab == 4 && ch != '\t'){
                     int_2 += ch;
                 }
                 if(ch == '\t'){
@@ -120,7 +119,7 @@ int common_interval(int argc, char* argv[]){
                             time_t diff_time = time(NULL) - execution_time;
                             time_t exp_time = diff_time/(double)perc * (100 - perc);
                             if(perc % 10 == 0){
-                                cout << "Processed: " << perc << "% - Excution Time: " << diff_time << " second(s) - Expected Time: " << exp_time << " second(s)" << endl;
+                                std::cerr << "Processed: " << perc << "% - Excution Time: " << diff_time << " second(s) - Expected Time: " << exp_time << " second(s)" << endl;
                             }
                         }
                         if(i == offset){
@@ -134,13 +133,13 @@ int common_interval(int argc, char* argv[]){
                             while(end_len < line.length()){
                                 ch = line.at(end_len);
                                 end_len++;
-                                if(tab == 2){
+                                if(tab == 2 && ch != '\t'){
                                     chrom += ch;
                                 }
-                                if(tab == 3){
+                                if(tab == 3 && ch != '\t'){
                                     int_1 += ch;
                                 }
-                                if(tab == 4){
+                                if(tab == 4 && ch != '\t'){
                                     int_2 += ch;
                                 }
                                 if(ch == '\t'){
@@ -152,7 +151,7 @@ int common_interval(int argc, char* argv[]){
                             pos_pe2 = atol(int_2.c_str());
                             regions[atoi(chrom.c_str()) - 1].push_back(new interval(pos_pe1, pos_pe2));
                         }
-                    }                        
+                    }
                 }
             }
             
@@ -162,29 +161,29 @@ int common_interval(int argc, char* argv[]){
                 time_t diff_time = time(NULL) - execution_time;
                 time_t exp_time = diff_time/(double)perc * (100 - perc);
                 if(perc % 10 == 0){
-                    cout << "Processed: " << perc << "% - Excution Time: " << diff_time << " second(s) - Expected Time: " << exp_time << " second(s)" << endl;
+                    std::cerr << "Processed: " << perc << "% - Excution Time: " << diff_time << " second(s) - Expected Time: " << exp_time << " second(s)" << endl;
                 }
             }
         }
-        cout << "File Processed...100%" << endl;
+        std::cerr << "File Processed...100%" << endl;
         align_file.close();
         //Sort the vector...
-        cout << "Merging intervsals for each chromosome..." << endl;
-        for(int i=0;i < 24;i++){
+        std::cerr << "Merging intervsals for each chromosome..." << endl;
+        for(int i=0;i < 25;i++){
             stable_sort(regions[i].begin(),regions[i].end(),less_than());
         }
         //...and merge the intervals.
-        vector <interval*>* cont_regions[24];
-        for(int i=0;i < 24;i++){
+        vector <interval*>* cont_regions[25];
+        for(int i=0;i < 25;i++){
             cont_regions[i]= merge_intervals(regions[i]);
 	}
-        cout << "Intervsals for each chromosome merged...100%" << endl;
+        std::cerr << "Intervsals for each chromosome merged...100%" << endl;
         
         //Write intervals on file
         string interval_file = argv[1];
         interval_file += "_intervals_CHR";
         ofstream ifile;
-        for(int z=0;z < 24;z++){
+        for(int z=0;z < 25;z++){
             std::stringstream str;
             str << z+1;
             std::string result;
@@ -212,7 +211,7 @@ int common_interval(int argc, char* argv[]){
                 cout << "Intervals After merge  CHR " << z+1 << ": " << cont_regions[z]->size() << endl;
             }
             else{
-                cout << "Error writing interval file " << interval_file << endl;
+                std::cerr << "Error writing interval file " << interval_file << endl;
             }
         }
         return 0;

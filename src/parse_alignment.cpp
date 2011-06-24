@@ -9,6 +9,8 @@ Number_of_alignments PE_number Left_align_position Rigth_align_position
 #include <cstring>
 #include <cstdlib>
 #include <queue>
+#include <string>
+#include <algorithm>
 
 #include "chr_separation.h"
 
@@ -22,7 +24,7 @@ string get_position(string line){
     while(end_len < line.length()){
 	ch = line.at(end_len);
 	end_len++;
-	if(tab == 2){
+	if(tab == 3 && ch != '\t'){
 	    end += ch;
 	}
 	if(ch == '\t'){
@@ -37,29 +39,27 @@ string get_chromosome(string line){
     string chromosome = "";
     unsigned int end_len = 0;
     int tab = 0;
-    int separator = 0;
-    unsigned int ident = line.find("NC_") + 3;
     while(end_len < line.length()){
 	ch = line.at(end_len);
 	end_len++;
-	if(tab == 1){
-            if(ch == '|'){
-                separator++;
-            }
-            if(separator == 3 && end_len > ident + 4 && end_len <= ident + 6){
-                chromosome += ch;
-            }
+	if(tab == 2 && ch != '\t'){
+            chromosome += ch;
 	}
 	if(ch == '\t'){
-	    tab++;
+	   tab++;
 	}
     }
-    return chromosome;
+    chromosome = chromosome.substr(3,chromosome.size() - 3);
+    if(chromosome == "X") return "23";
+    if(chromosome == "Y") return "24";
+    if(chromosome == "M") return "25";
+    if(chromosome.size() > 1) return chromosome;
+    else return "0" + chromosome;
 }
 
 int parse_alignment(int argc, char *argv[]) {
 	if(argc <= 2){
-		cout << endl << "Usage: map_analyzer parse_alignment <bowtie_align_file>" << endl << endl;
+		std::cerr << endl << "Usage: map_analyzer parse_alignment <bowtie_align_file>" << endl << endl;
 		return -1;	
 	}
 	long long file_dimension = 1;
@@ -97,7 +97,7 @@ int parse_alignment(int argc, char *argv[]) {
 	
         //Processing Lines
 	if(read_file(argv[1], align_file)==0 && outfilestream.is_open()){
-		cout << "Start Reading..." << endl;
+		std::cerr << "Start Reading..." << endl;
 		while (getline(align_file,line)){
 			//PE name from alignment
 			int i = 0;
@@ -147,11 +147,11 @@ int parse_alignment(int argc, char *argv[]) {
 				time_t diff_time = time(NULL) - execution_time;
 				time_t exp_time = diff_time/(double)perc * (100 - perc);
                                 if(perc % 10 == 0){
-                                    cout << "Processed: " << perc << "% - Excution Time: " << diff_time << " second(s) - Expected Time: " << exp_time << " second(s)" << endl;
+                                    std::cerr << "Processed: " << perc << "% - Excution Time: " << diff_time << " second(s) - Expected Time: " << exp_time << " second(s)" << endl;
                                 }
 			}
 		}
-		cout << "Processed: 100%" << endl;
+		std::cerr << "Processed: 100%" << endl;
   		align_file.close();
 		outfilestream.close();
 	}
