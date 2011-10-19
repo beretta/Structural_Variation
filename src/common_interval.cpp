@@ -21,7 +21,7 @@ using namespace std;
 vector <interval*>* merge_intervals(vector <interval*>& regions){
     
     vector <interval*>* cont_regions = new vector <interval*>;
-    interval* tmp_int = new interval(regions.at(0)->getBegin(),regions.at(0)->getEnd());
+    interval* tmp_int = new interval(regions.at(0)->getBegin(),regions.at(0)->getEnd(),regions.at(0)->getSeq());
     for(unsigned int i=0; i<regions.size();i++){
         if(regions.at(i)->getBegin()<=tmp_int->getEnd()){
             if(regions.at(i)->getEnd()>=tmp_int->getEnd())
@@ -29,7 +29,7 @@ vector <interval*>* merge_intervals(vector <interval*>& regions){
         }
         else{
             cont_regions->push_back(tmp_int);
-            tmp_int = new interval(regions.at(i)->getBegin(),regions.at(i)->getEnd());
+            tmp_int = new interval(regions.at(i)->getBegin(),regions.at(i)->getEnd(),regions.at(i)->getSeq());
         }
         delete regions.at(i);
     }
@@ -72,6 +72,7 @@ int common_interval(int argc, char* argv[]){
             string int_2 = "";
             string num_align = "";
             string chrom = "";
+	    string seq = "";
             unsigned int end_len = 0;
             int tab = 0;
             while(end_len < line.length()){
@@ -88,7 +89,10 @@ int common_interval(int argc, char* argv[]){
                 }
                 if(tab == 4 && ch != '\t'){
                     int_2 += ch;
-                }
+	        }
+                if(tab == 5 && ch != '\t'){
+                    seq += ch;
+	        }
                 if(ch == '\t'){
                     tab++;
                 }
@@ -100,7 +104,7 @@ int common_interval(int argc, char* argv[]){
             
             if(pos_pe1 != 0 && pos_pe2 != 0){
                 if(alignments == 1){
-                    regions[atoi(chrom.c_str()) - 1].push_back(new interval(pos_pe1, pos_pe2));
+		  regions[atoi(chrom.c_str()) - 1].push_back(new interval(pos_pe1, pos_pe2, seq));
                 }
                 else{
 
@@ -108,7 +112,7 @@ int common_interval(int argc, char* argv[]){
                     int offset = rand() % alignments;
                     //cout << "offset " << offset << endl;
                     if(offset == 0){
-                        regions[atoi(chrom.c_str()) - 1].push_back(new interval(pos_pe1, pos_pe2));
+		      regions[atoi(chrom.c_str()) - 1].push_back(new interval(pos_pe1, pos_pe2, seq));
                         //cout << "line0 " << line << endl;
                     }
                     for(int i = 1; i<alignments; i++){
@@ -129,6 +133,7 @@ int common_interval(int argc, char* argv[]){
                             int_2 = "";
                             end_len = 0;
                             chrom = "";
+			    seq = "";
                             tab = 0;
                             while(end_len < line.length()){
                                 ch = line.at(end_len);
@@ -142,6 +147,9 @@ int common_interval(int argc, char* argv[]){
                                 if(tab == 4 && ch != '\t'){
                                     int_2 += ch;
                                 }
+                                if(tab == 5 && ch != '\t'){
+                                    seq += ch;
+                                }
                                 if(ch == '\t'){
                                     tab++;
                                 }
@@ -149,7 +157,7 @@ int common_interval(int argc, char* argv[]){
                             
                             pos_pe1 = atol(int_1.c_str());
                             pos_pe2 = atol(int_2.c_str());
-                            regions[atoi(chrom.c_str()) - 1].push_back(new interval(pos_pe1, pos_pe2));
+                            regions[atoi(chrom.c_str()) - 1].push_back(new interval(pos_pe1, pos_pe2, seq));
                         }
                     }
                 }
@@ -201,6 +209,8 @@ int common_interval(int argc, char* argv[]){
                     ifile << '\t';
                     gap_size = cont_regions[z]->at(i)->getBegin() - last_insert;
                     ifile << gap_size;
+		    ifile << '\t';
+		    ifile << cont_regions[z]->at(i)->getSeq();
                     ifile << '\n';
                     last_insert = cont_regions[z]->at(i)->getEnd();
                 }

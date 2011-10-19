@@ -53,7 +53,7 @@ string find_align_position(string line){
 
 vector <interval*>* merge_regions(vector <interval*>& regions){
 	vector <interval*>* cont_regions = new vector <interval*>;
-	interval* tmp_int = new interval(regions.at(0)->getBegin(),regions.at(0)->getEnd());
+	interval* tmp_int = new interval(regions.at(0)->getBegin(),regions.at(0)->getEnd(), regions.at(0)->getSeq());
 	for(unsigned int i=0; i<regions.size();i++){
 		if(regions.at(i)->getBegin()<=tmp_int->getEnd()){
 			if(regions.at(i)->getEnd()>=tmp_int->getEnd())
@@ -61,7 +61,7 @@ vector <interval*>* merge_regions(vector <interval*>& regions){
 		}
 		else{
 			cont_regions->push_back(tmp_int);
-			tmp_int = new interval(regions.at(i)->getBegin(),regions.at(i)->getEnd());
+			tmp_int = new interval(regions.at(i)->getBegin(),regions.at(i)->getEnd(),regions.at(i)->getSeq());
 		}
 		delete regions.at(i);
 	}
@@ -85,6 +85,7 @@ int build_regions(int argc, char* argv[]){
 			int seq_length = 0;
 			unsigned int line_len = 0;
 			int tab = 0;
+			string seq = "";
 			getline(align_file,pe1);
 			long pos_pe1 = atol(find_align_position(pe1).c_str());
 			getline(align_file,pe2);
@@ -105,7 +106,7 @@ int build_regions(int argc, char* argv[]){
 				}
 			}
 			if(pos_pe1 != 0 && pos_pe2 != 0){
-				regions.push_back(new interval(pos_pe1, pos_pe2 + (seq_length-1) ));
+			  regions.push_back(new interval(pos_pe1, pos_pe2 + (seq_length-1),seq ));
 			}
     		}
 		cout << "Done!" << endl;

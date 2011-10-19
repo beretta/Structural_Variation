@@ -34,6 +34,25 @@ string get_position(string line){
     return end;
 }
 
+
+string get_seq(string line){
+  char ch = '\0';
+  string seq = "";
+  unsigned int end_len = 0;
+  int tab = 0;
+  while(end_len < line.length()){
+    ch = line.at(end_len);
+    end_len++;
+    if(tab == 4 && ch != '\t'){
+      seq += ch;
+    }
+    if(ch=='\t'){
+       tab++;
+    }
+  }
+return seq;
+ }
+
 string get_chromosome(string line){
     char ch = '\0';
     string chromosome = "";
@@ -56,6 +75,7 @@ string get_chromosome(string line){
     if(chromosome.size() > 1) return chromosome;
     else return "0" + chromosome;
 }
+
 
 int parse_alignment(int argc, char *argv[]) {
 	if(argc <= 2){
@@ -86,6 +106,7 @@ int parse_alignment(int argc, char *argv[]) {
 	string first_pos = "";
 	string second_pos = "";
         string chromosome = "";
+	string seq = "";
 	
         //Out File
 	string last_pe = "";
@@ -110,13 +131,14 @@ int parse_alignment(int argc, char *argv[]) {
                             //first_pos = atol(get_position(line).c_str());
                             first_pos = get_position(line);
                             chromosome = get_chromosome(line);
+			     seq = get_seq(line);
                             first_end = false;
 			}
 			else{
                             first_end = true;
                             //second_pos = atol(get_position(line).c_str());
                             second_pos = get_position(line);
-                            if(strcmp(paired_end.c_str(),last_pe.c_str())==0){
+			    if(strcmp(paired_end.c_str(),last_pe.c_str())==0){
 				count++;
                             }else{
                                 last_pe = paired_end;
@@ -138,6 +160,8 @@ int parse_alignment(int argc, char *argv[]) {
                             s += first_pos;
                             s += '\t';
                             s += second_pos;
+			    s += '\t';
+			    s += seq;
                             q.push(s);
                             s = "";
                         }
